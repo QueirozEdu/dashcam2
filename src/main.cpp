@@ -16,7 +16,7 @@ bool isHome()
 
   WiFi.disconnect();
   delay(2000);
-  WiFi.begin("Xena", "redesemfio1");
+  WiFi.begin("SSID", "password");
   while (WiFi.status() != WL_CONNECTED && numberOfTries < 150)
   {
     delay(100);
