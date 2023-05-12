@@ -6,9 +6,37 @@
 #define vccSrcRelay D7
 #define voltageSensor A0
 #define statusLED D5
+// #define stopButton D6
+const int stopButton = 12;
 
 int incoming = 0;
 int voltage = 0;
+
+void blinkLed(int blinkQuantity, int blinkSpacing)
+{
+  int counter = 0;
+  while (counter < blinkQuantity)
+  {
+    counter++;
+    digitalWrite(statusLED, HIGH);
+    delay(blinkSpacing);
+    digitalWrite(statusLED, LOW);
+    delay(blinkSpacing);
+  }
+}
+
+ICACHE_RAM_ATTR void stopCam()
+{
+  Serial.println("Stop Button Pressed...");
+  blinkLed(10, 200);
+  delay(100);
+  digitalWrite(batteryRelay, LOW);
+  delay(500);
+  digitalWrite(vccSrcRelay, LOW);
+  delay(100);
+
+  ESP.restart();
+}
 
 bool isHome()
 {
@@ -33,19 +61,6 @@ bool isHome()
   }
 }
 
-void blinkLed(int blinkQuantity, int blinkSpacing)
-{
-  int counter = 0;
-  while (counter < blinkQuantity)
-  {
-    counter++;
-    digitalWrite(statusLED, HIGH);
-    delay(blinkSpacing);
-    digitalWrite(statusLED, LOW);
-    delay(blinkSpacing);
-  }
-}
-
 void initialize()
 {
   digitalWrite(statusLED, HIGH);
@@ -64,10 +79,13 @@ void setup()
   pinMode(vccSrcRelay, OUTPUT);
   pinMode(voltageSensor, INPUT);
   pinMode(statusLED, OUTPUT);
+  pinMode(stopButton, INPUT_PULLUP);
 
   digitalWrite(statusLED, LOW);
   digitalWrite(batteryRelay, LOW);
   digitalWrite(voltageSensor, LOW);
+
+  attachInterrupt(digitalPinToInterrupt(stopButton), stopCam, RISING);
 
   Serial.begin(9600);
 
